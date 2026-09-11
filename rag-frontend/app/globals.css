@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  color-scheme: light;
+}
+
+body {
+  background-color: #F1F2ED;
+  color: #1C2333;
+}
+
+/* Hairline rule, used sparingly for structural separation (index list,
+   header underline) — not decoration on every box. */
+.rule {
+  border-color: #D8DBD3;
+}
+
+::selection {
+  background-color: #F3E3C4;
+  color: #1C2333;
+}
+
+/* Citation marker: small superscript-style tag inside assistant text */
+.citation-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.25rem;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1;
+  background-color: #F3E3C4;
+  color: #8A5A10;
+  cursor: pointer;
+  transform: translateY(-0.35rem);
+  margin-left: 0.15rem;
+  transition: background-color 120ms ease;
+}
+.citation-mark:hover {
+  background-color: #C1861F;
+  color: #FFFFFF;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,44 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+
+# Orchestration
+langchain==0.3.7
+langchain-community==0.3.5
+langgraph==0.2.39
+
+# Model routing (switch LLM / embedding provider without touching app code)
+litellm==1.60.0
+
+# Free, local, no-API-key embedding fallback (used when EMBEDDING_MODEL
+# starts with "local/") — needed if your LLM provider (e.g. DeepSeek)
+# doesn't offer an embedding endpoint.
+sentence-transformers==3.2.1
+
+# Vector index (local, compressed via TurboQuant)
+turbovec==0.3.0
+numpy==1.26.4
+
+# Excel/CSV ingestion (app/core/excel_ingest.py) — sheets become real SQLite
+# tables (see app/core/sql_tool.py) instead of embedded row text.
+pandas==2.2.3
+openpyxl==3.1.5
+
+# Document chunking (layout + table aware)
+docling==2.5.2
+# docling_core's HybridChunker requires this extra (pulls in semchunk) —
+# without it, importing HybridChunker raises RuntimeError at import time.
+docling-core[chunking]
+# docling_core's chunker package also imports these eagerly (for its
+# code-chunking feature) even though we only use HybridChunker for
+# prose/table text — without them, the same import fails.
+tree-sitter
+tree-sitter-languages
+
+# Config / validation
+pydantic==2.9.2
+pydantic-settings==2.5.2
+python-dotenv==1.0.1
+
+# Misc
+python-multipart==0.0.12
+aiofiles==24.1.0

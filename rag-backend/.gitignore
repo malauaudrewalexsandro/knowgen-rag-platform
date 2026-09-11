@@ -1,0 +1,31 @@
+# ── Secrets — NEVER commit these ──
+.env
+.env.local
+*.env
+!.env.example
+
+# ── Python ──
+venv/
+.venv/
+.venv-1/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# ── Storage / generated data (local dev artifacts, don't push a stranger's
+#    uploaded docs or vector indexes into shared history) ──
+storage/vector_indexes/*
+!storage/vector_indexes/.gitkeep
+storage/uploads/*
+!storage/uploads/.gitkeep
+storage/metadata/*
+!storage/metadata/.gitkeep
+
+# ── IDE ──
+.vscode/
+.idea/
+
+# ── OS ──
+.DS_Store
+Thumbs.db
