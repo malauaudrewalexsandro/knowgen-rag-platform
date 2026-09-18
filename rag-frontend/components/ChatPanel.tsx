@@ -26,7 +26,14 @@ export default function ChatPanel({ hasDocuments }: { hasDocuments: boolean }) {
       const res = await sendChat(nextMessages.map(({ role, content }) => ({ role, content })));
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: res.reply, sources: res.retrieved_chunks },
+        {
+          role: "assistant",
+          content: res.reply,
+          sources: res.retrieved_chunks,
+          chartUrl: res.chart_url ?? undefined,
+          fileUrl: res.file_url ?? undefined,
+          fileName: res.file_name ?? undefined,
+        },
       ]);
       setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
     } catch (e) {

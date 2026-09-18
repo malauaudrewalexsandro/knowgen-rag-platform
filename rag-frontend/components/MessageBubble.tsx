@@ -1,12 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { RetrievedChunk } from "@/lib/api";
+import { Download } from "lucide-react";
+import { API_BASE, RetrievedChunk } from "@/lib/api";
 
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   sources?: RetrievedChunk[];
+  chartUrl?: string | null;
+  fileUrl?: string | null;
+  fileName?: string | null;
 }
 
 function CitationPopover({ index, chunk }: { index: number; chunk: RetrievedChunk }) {
@@ -27,6 +31,10 @@ function CitationPopover({ index, chunk }: { index: number; chunk: RetrievedChun
             <span className="uppercase tracking-wide">
               {chunk.chunk_type === "sql_result"
                 ? "Kueri SQL"
+                : chunk.chunk_type === "chart_result"
+                ? "Chart"
+                : chunk.chunk_type === "clone_result"
+                ? "Dokumen hasil clone"
                 : chunk.chunk_type === "table_schema"
                 ? "Tabel spreadsheet"
                 : chunk.chunk_type ?? "text"}
@@ -70,6 +78,26 @@ export default function MessageBubble({ message }: { message: ChatMessage }) {
             <CitationPopover key={chunk.id} index={i + 1} chunk={chunk} />
           ))}
         </p>
+
+        {message.chartUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={`${API_BASE}${message.chartUrl}`}
+            alt="Chart yang dihasilkan"
+            className="mt-3 max-w-full rounded-md border border-line"
+          />
+        )}
+
+        {message.fileUrl && (
+          <a
+            href={`${API_BASE}${message.fileUrl}`}
+            download={message.fileName ?? undefined}
+            className="mt-3 inline-flex items-center gap-2 rounded-md border border-line px-3 py-1.5 text-xs font-medium text-teal transition-colors hover:border-teal"
+          >
+            <Download size={13} />
+            {message.fileName ?? "Download dokumen"}
+          </a>
+        )}
       </div>
     </div>
   );

@@ -3,6 +3,7 @@
 import { FileText, Image as ImageIcon, Table as TableIcon } from "lucide-react";
 import { DocumentSummary } from "@/lib/api";
 import UploadDropzone from "./UploadDropzone";
+import GenerateReportButton from "./GenerateReportButton";
 
 function timeAgo(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -68,6 +69,11 @@ export default function Sidebar({
                       )}
                     </div>
                     <p className="mt-1 text-xs text-ink-faint">{timeAgo(doc.created_at)}</p>
+
+                    {/* Report generation only makes sense for documents that
+                        actually have ingested spreadsheet tables to build
+                        charts/tables from (see app/core/doc_generation). */}
+                    {doc.excel_tables > 0 && <GenerateReportButton documentId={doc.id} />}
                   </div>
                 </div>
               </li>
