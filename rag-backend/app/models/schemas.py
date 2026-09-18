@@ -18,6 +18,11 @@ class ChatResponse(BaseModel):
     reply: str
     retrieved_chunks: list[dict] = Field(default_factory=list)
     model_used: str
+    # Relative path (e.g. "/generate/chart/xyz.png") when the assistant
+    # called the generate_chart tool for this turn — see app/core/rag_chain.py.
+    chart_url: str | None = None
+    file_url: str | None = None
+    file_name: str | None = None
 
 
 class IngestRequest(BaseModel):

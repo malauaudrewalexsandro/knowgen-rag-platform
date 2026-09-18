@@ -17,7 +17,7 @@ def chat(req: ChatRequest):
     llm_model = req.llm_model or settings.default_llm_model
 
     try:
-        reply_text, hits = answer(
+        reply_text, hits, chart_url, file_info = answer(
             question=question,
             llm_model=req.llm_model,
             embedding_model=req.embedding_model,
@@ -31,4 +31,7 @@ def chat(req: ChatRequest):
         reply=reply_text,
         retrieved_chunks=[{"id": h.id, "score": h.score, **h.payload} for h in hits],
         model_used=llm_model,
+        chart_url=chart_url,
+        file_url=file_info["url"] if file_info else None,
+        file_name=file_info["name"] if file_info else None,
     )

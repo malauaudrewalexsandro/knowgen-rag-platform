@@ -9,10 +9,22 @@ structure-aware `DoclingDocument`, then produces three kinds of chunks:
   - image chunks  (raw crops handed to core/vlm.py for description, only
                     when VLM analysis is toggled on for the document)
 
+ACCURACY vs SPEED: the shared `_converter` below is configured for
+maximum reading-order accuracy rather than speed — full-page OCR (re-reads
+each page as an image instead of trusting the PDF's internal text-object
+order) plus TableFormer's ACCURATE mode. This trades noticeably slower
+parsing (especially on CPU-only machines) for fewer reading-order glitches
+— e.g. a side-by-side "company name (left) / date (right)" line on a dense
+resume PDF being dropped or displaced when parsed from raw text order (see
+app/core/doc_generation/document_blocks.py's docstring for the concrete
+case this was tuned for). This applies to BOTH the /documents/ingest path
+and the /generate/clone path, since they share this same converter.
+
 NOTE: Docling's API has moved fairly quickly across versions — if
-`DocumentConverter` / `HybridChunker` / item attribute names below don't
-match what `pip install docling` resolves to, check docling's current docs;
-this file is the single place that needs updating.
+`DocumentConverter` / `HybridChunker` / `PdfPipelineOptions` / item
+attribute names below don't match what `pip install docling` resolves to,
+check docling's current docs; this file is the single place that needs
+updating.
 
 WINDOWS NOTE: `torch` MUST be imported before `docling` here. Docling's
 import chain pulls in several C-extension packages (docling_parse,
@@ -26,7 +38,9 @@ import torch  # noqa: F401  (import order matters on Windows — see note above)
 
 from dataclasses import dataclass, field
 
-from docling.document_converter import DocumentConverter
+from docling.datamodel.base_models import InputFormat
+from docling.datamodel.pipeline_options import PdfPipelineOptions, TableFormerMode
+from docling.document_converter import DocumentConverter, PdfFormatOption
 try:
     # Newer docling versions re-export HybridChunker here.
     from docling.chunking import HybridChunker
@@ -61,7 +75,25 @@ class ImageChunk:
     extra: dict = field(default_factory=dict)
 
 
-_converter = DocumentConverter()
+def _build_converter() -> DocumentConverter:
+    try:
+        pdf_options = PdfPipelineOptions()
+        pdf_options.do_ocr = True
+        pdf_options.ocr_options.force_full_page_ocr = True
+        pdf_options.do_table_structure = True
+        pdf_options.table_structure_options.mode = TableFormerMode.ACCURATE
+        return DocumentConverter(
+            format_options={InputFormat.PDF: PdfFormatOption(pipeline_options=pdf_options)}
+        )
+    except Exception:
+        # If this docling version's pipeline-options API doesn't match
+        # (see the version-drift note above), fall back to the default
+        # converter rather than breaking ingestion entirely — slower
+        # accuracy tuning is better than a hard crash.
+        return DocumentConverter()
+
+
+_converter = _build_converter()
 
 
 def convert_document(file_path: str):

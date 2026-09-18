@@ -3,7 +3,7 @@ import torch
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import routes_admin, routes_chat, routes_documents
+from app.api import routes_admin, routes_chat, routes_documents, routes_generate
 from app.config import settings
 from app.core.embeddings import _get_local_model
 from app.db import metadata_store
@@ -21,11 +21,16 @@ app.add_middleware(
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
+    # Content-Disposition (carries the generated file's name) is NOT a
+    # CORS-safelisted response header by default, so without this the
+    # frontend's fetch() can read the file bytes but not the filename.
+    expose_headers=["Content-Disposition"],
 )
 
 app.include_router(routes_documents.router)
 app.include_router(routes_chat.router)
 app.include_router(routes_admin.router)
+app.include_router(routes_generate.router)
 
 
 @app.on_event("startup")
